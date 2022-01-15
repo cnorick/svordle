@@ -1,3 +1,32 @@
+:root {
+    --primary-color: #302AE6;
+    --secondary-color: #536390;
+    --font-color: #424242;
+    --bg-color: #fff;
+    --heading-color: #292922;
+	--border-color: #878a8c;
+	--empty-border-color: #d3d6da;
+	--guessed-letter-color: #ffffff;
+	--key-bg: #d3d6da;
+	--text-color: #1a1a1b;
+	--incorrect-bg: #787c7e;
+	--correct-bg: #6aaa64;
+	--misplaced-bg: #c8b458;
+}
+
+:root {
+	--keyboard-height: 200px;
+	--game-max-width: 500px;
+}
+
+[data-theme="dark"] {
+    --primary-color: #9A97F3;
+    --secondary-color: #818cab;
+    --font-color: #e1e1ff;
+    --bg-color: #161625;
+    --heading-color: #818cab;
+}
+
 html, body {
 	position: relative;
 	width: 100%;
@@ -5,9 +34,9 @@ html, body {
 }
 
 body {
-	color: #333;
+	background-color: var(--bg-color);
+	color: var(--font-color);
 	margin: 0;
-	padding: 8px;
 	box-sizing: border-box;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
@@ -45,8 +74,8 @@ input:disabled {
 }
 
 button {
-	color: #333;
-	background-color: #f4f4f4;
+	color: var(--font-color);
+	background-color: var(--border-color);
 	outline: none;
 }
 

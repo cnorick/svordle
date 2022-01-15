@@ -1,29 +1,42 @@
 <script>
-	export let name;
+    import GameBoard from "./GameBoard.svelte";
+    import Header from "./Header.svelte";
+    import Keyboard from "./Keyboard.svelte";
+    import { gameState, reset } from "./stores";
 </script>
 
 <main>
-
+    <Header />
+    {#if $gameState === "playing"}
+        <GameBoard />
+        <Keyboard />
+    {:else if $gameState === "lost"}
+        <div class="lost">
+            <h1>You lost!</h1>
+            <button on:click={() => reset()}>Play again</button>
+        </div>
+    {:else if $gameState === "won"}
+        <div class="won">
+            <h1>You won!</h1>
+            <button on:click={() => reset()}>Play again</button>
+        </div>
+    {/if}
+    
 </main>
 
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
+    main {
+        width: 100%;
+        max-width: var(--game-max-width);
+        margin: 0 auto;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
 
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
+    @media (min-width: 640px) {
+        main {
+            max-width: none;
+        }
+    }
 </style>
