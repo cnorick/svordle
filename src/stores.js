@@ -61,7 +61,6 @@ const currentRow = writable(getEmptyRow());
 export const reset = () => {
   answer = getRandomWord();
   guesses.set([]);
-  usedLetters.set(new Map());
   currentRow.set(getEmptyRow());
 };
 
