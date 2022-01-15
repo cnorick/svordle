@@ -1,8 +1,8 @@
 const fs = require('fs');
 const readline = require('readline');
 
-get5LetterWords();
-// getRanked5LetterWords();
+// get5LetterWords();
+getRanked5LetterWords();
 // getMostCommon5LetterWords();
 
 

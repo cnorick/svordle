@@ -8,15 +8,8 @@ const getEmptyRow = () => Array.from({ length: answer.length }, () => new Letter
 
 const guesses = writable([]);
 export const usedLetters = derived(guesses, ($guesses) => {
-  const correctLetters = Object.entries(
-    answer.split("").reduce((acc, letter) => {
-      if (!acc[letter]) {
-        acc[letter] = 0;
-      }
-      acc[letter]++;
-      return acc;
-    }, {})
-  )
+  const answerLetterCounts = getAnswerLetterCounts();
+  const correctLetters = answerLetterCounts
     .filter(([answerLetter, count]) =>
       $guesses.some(
         (guess) =>
@@ -47,21 +40,9 @@ export const usedLetters = derived(guesses, ($guesses) => {
     .map((guess) => guess.letter)
     .filter(
       (letter) =>
-        !misplacedLetters.includes(letter) &&
-        !correctLetters.includes(letter)
+        !misplacedLetters.includes(letter) && !correctLetters.includes(letter)
     );
 
-  console.log(
-    ...correctLetters.map((letter) => [letter, new Letter(letter, "correct")]),
-    ...misplacedLetters.map((letter) => [
-      letter,
-      new Letter(letter, "misplaced"),
-    ]),
-    ...incorrectLetters.map((letter) => [
-      letter,
-      new Letter(letter, "incorrect"),
-    ])
-  );
   return new Map([
     ...correctLetters.map((letter) => [letter, new Letter(letter, "correct")]),
     ...misplacedLetters.map((letter) => [
@@ -78,11 +59,11 @@ export const usedLetters = derived(guesses, ($guesses) => {
 const currentRow = writable(getEmptyRow());
 
 export const reset = () => {
-    answer = getRandomWord();
-    guesses.set([]);
-    usedLetters.set(new Map());
-    currentRow.set(getEmptyRow());
-}
+  answer = getRandomWord();
+  guesses.set([]);
+  usedLetters.set(new Map());
+  currentRow.set(getEmptyRow());
+};
 
 export const board = derived(
   [guesses, currentRow],
@@ -95,23 +76,23 @@ export const board = derived(
   ]
 );
 
-const getWordFromGuess = (guess) => guess?.map(l => l.letter).join("") ?? "";
+const getWordFromGuess = (guess) => guess?.map((l) => l.letter).join("") ?? "";
 
-export const gameState = derived(guesses, $guesses => {
-    const lastGuessAsWord = getWordFromGuess($guesses[$guesses.length - 1]);
-    if (lastGuessAsWord === answer) {
-        return "won";
-    }
-    if ($guesses.length === numRows) {
-        return "lost";
-    }
-    return "playing";
+export const gameState = derived(guesses, ($guesses) => {
+  const lastGuessAsWord = getWordFromGuess($guesses[$guesses.length - 1]);
+  if (lastGuessAsWord === answer) {
+    return "won";
+  }
+  if ($guesses.length === numRows) {
+    return "lost";
+  }
+  return "playing";
 });
 
 const getNextIndexInRow = (row) => {
-    const index = row.findIndex(l => l.letter === null);
-    return index === -1 ? row.length : index;
-}
+  const index = row.findIndex((l) => l.letter === null);
+  return index === -1 ? row.length : index;
+};
 
 export const typeLetter = (letter) => {
   if (get(guesses).length === numRows) return;
@@ -121,7 +102,7 @@ export const typeLetter = (letter) => {
       ? [...row.slice(0, index), new Letter(letter), ...row.slice(index + 1)]
       : row;
   });
-}
+};
 
 export const deleteLetter = () =>
   currentRow.update((row) => {
@@ -137,32 +118,49 @@ export const makeGuess = () => {
   const word = getWordFromGuess(guess);
   if (!isWordInDictionary(word)) return;
 
-  const tempAnswer = answer.slice();
+  let tempAnswer = answer.slice();
   guess.forEach((letter, idx) => {
     if (tempAnswer.includes(letter.letter)) {
       if (tempAnswer[idx] === letter.letter) {
         letter.state = "correct";
-        replaceAt(tempAnswer, idx, " ");
+        tempAnswer = replaceAt(tempAnswer, idx, " ");
       } else {
         letter.state = "misplaced";
         const index = tempAnswer.indexOf(letter.letter);
-        replaceAt(tempAnswer, index, " ");
+        tempAnswer = replaceAt(tempAnswer, index, " ");
       }
     } else {
       letter.state = "incorrect";
     }
   });
 
-  guesses.update((guesses) => guesses.length < numRows ? [...guesses, guess] : guesses);
+  guesses.update((guesses) =>
+    guesses.length < numRows ? [...guesses, guess] : guesses
+  );
 
   if (get(guesses).length === numRows) {
     currentRow.set([]);
-  }
-  else {
+  } else {
     currentRow.set(getEmptyRow());
   }
 };
 
 function replaceAt(string, index, replacement) {
-  return string.substr(0, index) + replacement + string.substr(index + replacement.length);
+  return (
+    string.substr(0, index) +
+    replacement +
+    string.substr(index + replacement.length)
+  );
+}
+
+function getAnswerLetterCounts() {
+  return Object.entries(
+    answer.split("").reduce((acc, letter) => {
+      if (!acc[letter]) {
+        acc[letter] = 0;
+      }
+      acc[letter]++;
+      return acc;
+    }, {})
+  );
 }
