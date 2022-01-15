@@ -27,8 +27,12 @@ export const board = derived(
   ]
 );
 
+const getWordFromGuess = (guess) => guess?.map(l => l.letter).join("") ?? "";
+
 export const gameState = derived(guesses, $guesses => {
-    if ($guesses[$guesses.length - 1] === answer) {
+    const lastGuessAsWord = getWordFromGuess($guesses[$guesses.length - 1]);
+    console.log(lastGuessAsWord);
+    if (lastGuessAsWord === answer) {
         return "won";
     }
     if ($guesses.length === numRows) {
@@ -63,8 +67,7 @@ export const deleteLetter = () =>
 export const makeGuess = () => {
   const guess = get(currentRow);
   if (getNextIndexInRow(guess) < answer.length) return;
-  const word = guess.map(l => l.letter).join("");
-  console.log(word)
+  const word = getWordFromGuess(guess);
   if (!isWordInDictionary(word)) return;
   guess.forEach((letter, idx) => {
     if (answer.includes(letter.letter)) {
