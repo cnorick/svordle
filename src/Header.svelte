@@ -21,12 +21,9 @@
         margin-bottom: 0;
     }
 
-    .title:last-child {
-        margin-bottom: 1rem;
-    }
 
     .title>* {
-        margin-top: .3rem;
-        margin-bottom: .3rem;
+        margin-top: 0;
+        margin-bottom: .1rem;
     }
 </style>

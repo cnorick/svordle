@@ -29,4 +29,11 @@
         padding: 10px;
         box-sizing: border-box;
     }
+
+    @media (max-width: 700px) {
+        .game-board {
+            width: 347px;
+            height: 414px;
+        }
+    }
 </style>
