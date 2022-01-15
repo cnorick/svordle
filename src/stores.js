@@ -2,7 +2,7 @@ import { writable, derived, get } from "svelte/store"
 import { getRandomWord, isWordInDictionary } from "./wordCreator"
 import { Letter } from "./letter";
 
-const answer = getRandomWord();
+export let answer = getRandomWord();
 const numRows = 6;
 const getEmptyRow = () => Array.from({ length: answer.length }, () => new Letter());
 
@@ -11,6 +11,7 @@ export const usedLetters = writable(new Map());
 const currentRow = writable(getEmptyRow());
 
 export const reset = () => {
+    answer = getRandomWord();
     guesses.set([]);
     usedLetters.set(new Map());
     currentRow.set(getEmptyRow());
@@ -31,7 +32,6 @@ const getWordFromGuess = (guess) => guess?.map(l => l.letter).join("") ?? "";
 
 export const gameState = derived(guesses, $guesses => {
     const lastGuessAsWord = getWordFromGuess($guesses[$guesses.length - 1]);
-    console.log(lastGuessAsWord);
     if (lastGuessAsWord === answer) {
         return "won";
     }
