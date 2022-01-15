@@ -1,6 +1,6 @@
 export class Letter {
-    constructor(letter) {
+    constructor(letter, state="pending") {
         this.letter = letter ?? null;
-        this.state = "pending";
+        this.state = state;
     }
 }

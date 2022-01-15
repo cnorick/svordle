@@ -7,7 +7,74 @@ const numRows = 6;
 const getEmptyRow = () => Array.from({ length: answer.length }, () => new Letter());
 
 const guesses = writable([]);
-export const usedLetters = writable(new Map());
+export const usedLetters = derived(guesses, ($guesses) => {
+  const correctLetters = Object.entries(
+    answer.split("").reduce((acc, letter) => {
+      if (!acc[letter]) {
+        acc[letter] = 0;
+      }
+      acc[letter]++;
+      return acc;
+    }, {})
+  )
+    .filter(([answerLetter, count]) =>
+      $guesses.some(
+        (guess) =>
+          guess.filter(
+            (guessLetter) =>
+              guessLetter.letter === answerLetter &&
+              guessLetter.state === "correct"
+          ).length === count
+      )
+    )
+    .map(([letter, count]) => letter);
+
+  const misplacedLetters = answer
+    .split("")
+    .filter((answerLetter) => !correctLetters.includes(answerLetter))
+    .filter((answerLetter) =>
+      $guesses
+        .flat()
+        .some(
+          (guess) =>
+            guess.letter === answerLetter &&
+            ["misplaced", "correct"].includes(guess.state)
+        )
+    );
+
+  const incorrectLetters = $guesses
+    .flat()
+    .map((guess) => guess.letter)
+    .filter(
+      (letter) =>
+        !misplacedLetters.includes(letter) &&
+        !correctLetters.includes(letter)
+    );
+
+  console.log(
+    ...correctLetters.map((letter) => [letter, new Letter(letter, "correct")]),
+    ...misplacedLetters.map((letter) => [
+      letter,
+      new Letter(letter, "misplaced"),
+    ]),
+    ...incorrectLetters.map((letter) => [
+      letter,
+      new Letter(letter, "incorrect"),
+    ])
+  );
+  return new Map([
+    ...correctLetters.map((letter) => [letter, new Letter(letter, "correct")]),
+    ...misplacedLetters.map((letter) => [
+      letter,
+      new Letter(letter, "misplaced"),
+    ]),
+    ...incorrectLetters.map((letter) => [
+      letter,
+      new Letter(letter, "incorrect"),
+    ]),
+  ]);
+});
+
 const currentRow = writable(getEmptyRow());
 
 export const reset = () => {
@@ -69,12 +136,17 @@ export const makeGuess = () => {
   if (getNextIndexInRow(guess) < answer.length) return;
   const word = getWordFromGuess(guess);
   if (!isWordInDictionary(word)) return;
+
+  const tempAnswer = answer.slice();
   guess.forEach((letter, idx) => {
-    if (answer.includes(letter.letter)) {
-      if (answer[idx] === letter.letter) {
+    if (tempAnswer.includes(letter.letter)) {
+      if (tempAnswer[idx] === letter.letter) {
         letter.state = "correct";
+        replaceAt(tempAnswer, idx, " ");
       } else {
         letter.state = "misplaced";
+        const index = tempAnswer.indexOf(letter.letter);
+        replaceAt(tempAnswer, index, " ");
       }
     } else {
       letter.state = "incorrect";
@@ -89,9 +161,8 @@ export const makeGuess = () => {
   else {
     currentRow.set(getEmptyRow());
   }
-
-  usedLetters.update((lettersMap) => new Map([
-    ...lettersMap,
-    ...guess.reduce((acc, letter) => acc.set(letter.letter, letter), new Map()),
-  ]));
 };
+
+function replaceAt(string, index, replacement) {
+  return string.substr(0, index) + replacement + string.substr(index + replacement.length);
+}
